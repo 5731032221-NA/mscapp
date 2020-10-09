@@ -93,7 +93,7 @@ class Question extends React.Component {
     }
 
     selectBooth(booth) {
-        this.setState({ booth: booth });
+        this.setState({ booth: booth,questionlist: [] });
         console.log("selectedbooth", booth);
         this.loadQuestion(booth);
     }
