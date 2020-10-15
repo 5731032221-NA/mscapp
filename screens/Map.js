@@ -8,7 +8,7 @@ import {
     Dimensions,
     StatusBar,
     Linking,
-    TouchableHighlight
+    TouchableHighlight,
 } from "react-native";
 
 import MapView from 'react-native-maps';
@@ -22,7 +22,10 @@ import mapicon2 from '../assets/icon/icon-Map-1.png';
 import qaicon1 from '../assets/icon/icon-QA-0.png';
 import qricon1 from '../assets/icon/icon-QR-0.png';
 import surveyicon1 from '../assets/icon/icon-Survey-0.png';
-const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBar.currentHeight;
+import { NavigationEvents } from "react-navigation";
+const backgroundimg = require('../assets/Map/AgendaBG.png');
+import boothmap from '../assets/Map/Booth.png';
+const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 40 : StatusBar.currentHeight+20;
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
@@ -63,8 +66,8 @@ class Map extends React.Component {
         const styles = StyleSheet.create({
             container: {
                 flex: 1,
-                marginTop: STATUS_BAR_HEIGHT,
-                height: SCREEN_HEIGHT - STATUS_BAR_HEIGHT * 2,
+                marginTop: (STATUS_BAR_HEIGHT -20)*6,
+                height: SCREEN_HEIGHT - ((STATUS_BAR_HEIGHT-20)),
                 width: SCREEN_WIDTH,
                 justifyContent: 'flex-end',
                 alignItems: 'center',
@@ -79,14 +82,25 @@ class Map extends React.Component {
                 right: 0,
                 bottom: 0,
 
-
                 
             },
             buttonstyleactive: {
-                backgroundColor: 'orange'
+                marginTop:50,
+                backgroundColor: 'orange',
+                paddingLeft:30,
+                paddingRight:30,
+                borderRadius:50,
+                borderWidth:1,
+                borderColor:'#ffffff'
             },
             buttonstyleinactive: {
-                backgroundColor: 'blue'
+                marginTop:50,
+                backgroundColor:'rgba(0, 0, 0, 0 )',
+                paddingLeft:30,
+                paddingRight:30,
+                borderRadius:50,
+                borderWidth:1,
+                borderColor:'#ffffff'
             }
         });
         return (
@@ -94,11 +108,24 @@ class Map extends React.Component {
 
             <Container>
                 <ScrollView >
-                    <View style={{ height: STATUS_BAR_HEIGHT * 3, flexDirection: 'row', width: SCREEN_WIDTH, alignItems: 'center', justifyContent: 'center', backgroundColor: 'green' }}>
-                        <Button style={this.state.mapstate == 0 ? styles.buttonstyleactive : styles.buttonstyleinactive} onPress={() => this.setState({ mapstate: 0 })} ><Text style={{ color: 'white' }}>MSC Map</Text></Button>
-                        <View style={{ width: SCREEN_WIDTH * 0.1 }}></View>
-                        <Button style={this.state.mapstate == 0 ? styles.buttonstyleinactive : styles.buttonstyleactive} onPress={() => this.setState({ mapstate: 1 })} ><Text style={{ color: 'white' }}>Event Map</Text></Button></View>
-                    
+                    <View style={{ height: (STATUS_BAR_HEIGHT -20), flexDirection: 'row', width: SCREEN_WIDTH, alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ flex: 1 }}>
+                            <Image
+                            style={{
+                                resizeMode: "cover",
+                                width: SCREEN_WIDTH , 
+                                height: (STATUS_BAR_HEIGHT -20)*10,
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                            source={backgroundimg}
+                            ></Image>
+                            <View style={{flexDirection: 'row', marginTop:-((STATUS_BAR_HEIGHT -20)),  justifyContent: 'center'}}>
+                                <Button style={this.state.mapstate == 0 ? styles.buttonstyleactive : styles.buttonstyleinactive} onPress={() => this.setState({ mapstate: 0 })} ><Text style={{ color: 'white' }}>MSC Map</Text></Button>
+                                <View style={{ width: SCREEN_WIDTH * 0.1 }}></View>
+                                <Button style={this.state.mapstate == 0 ? styles.buttonstyleinactive : styles.buttonstyleactive} onPress={() => this.setState({ mapstate: 1 })} ><Text style={{ color: 'white' }}>Event Map</Text></Button></View>
+                            </View>
+                        </View>
                     {(this.state.mapstate == 0) &&
                         <View style={styles.container}>
 
@@ -119,10 +146,7 @@ class Map extends React.Component {
                     {!(this.state.mapstate==0) &&
                         <Image
                             style={{ width: SCREEN_WIDTH, height: (SCREEN_HEIGHT- STATUS_BAR_HEIGHT*4) }}
-                            source={{
-
-                                uri: 'https://0901.static.prezi.com/preview/v2/beq2blh4xapysk2ks5bvbnnbq76jc3sachvcdoaizecfr3dnitcq_3_0.png',
-                            }}
+                            source={boothmap}
                         />
                     }
                   

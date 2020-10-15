@@ -16,13 +16,14 @@ import { bindActionCreators } from "redux";
 import * as Actions from "../action";
 import { Container, Content, Footer, FooterTab, Button } from 'native-base';
 
-const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBar.currentHeight;
+const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 40 : StatusBar.currentHeight+20;
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 // import Backgroundsvg from "../assets/images/background/AgendaBig.svg";
-const backgroundimg = require('../assets/images/background/Register.jpg');
-import Logo from '../assets/icon/icon-Home-3.svg';
-import { Svg } from 'react-native-svg';
+const backgroundimg = require('../assets/Agenda/AgendaBG.png');
+const agendaimg = require('../assets/Agenda/Agenda.png');
+//import Logo from '../assets/icon/icon-Home-3.svg';
+//import { Svg } from 'react-native-svg';
 import homeicon2 from '../assets/icon/icon-Home-1.png';
 import lottoicon1 from '../assets/icon/icon-Lotto-0.png';
 import mapicon1 from '../assets/icon/icon-Map-0.png';
@@ -32,12 +33,13 @@ import surveyicon1 from '../assets/icon/icon-Survey-0.png';
 class Home extends React.Component {
     constructor(props) {
         super(props);
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
     }
 
 
 
     handleBackButton() {
-        ToastAndroid.show('Back button is pressed', ToastAndroid.SHORT);
+        // ToastAndroid.show('Back button is pressed', ToastAndroid.SHORT);
         return true;
     }
 
@@ -47,9 +49,15 @@ class Home extends React.Component {
             <Container>
                 <ScrollView >
                     <View >
-                       
-                        <Image style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT }} source={backgroundimg} />
+                        <Image style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT+80   }} resizeMode='cover' source={backgroundimg} />
                     </View>
+                    <View style={{flex: 1, paddingLeft:5,
+                                    alignItems: 'center',
+                                    height: SCREEN_HEIGHT+30, marginLeft:0,
+                                    justifyContent: 'center', marginTop:-(SCREEN_HEIGHT+100)}} >
+                        <Image style={{flex: 1, width: SCREEN_WIDTH+20}} resizeMode='contain' source={agendaimg} />
+                    </View>
+                    
                 </ScrollView>
                 <Footer>
                     <FooterTab style={{ backgroundColor: "white" }}>

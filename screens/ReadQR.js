@@ -5,7 +5,8 @@ import {
     Text,
     View,
     Dimensions,
-    StatusBar, Platform
+    StatusBar, Platform,
+    TouchableHighlight
 } from "react-native";
 import * as Permissions from 'expo-permissions'
 import { BarCodeScanner } from 'expo-barcode-scanner';
@@ -23,10 +24,11 @@ import mapicon1 from '../assets/icon/icon-Map-0.png';
 import qaicon1 from '../assets/icon/icon-QA-0.png';
 import qricon2 from '../assets/icon/icon-QR-1.png';
 import surveyicon1 from '../assets/icon/icon-Survey-0.png';
-const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBar.currentHeight;
+const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 30 : StatusBar.currentHeight + 20;
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
-
+import CheckInBG from '../assets/Checkin/CheckInBG.png';
+import CheckIn from '../assets/Checkin/CheckIn.png';
 
 class ReadQR extends React.Component {
 
@@ -39,7 +41,8 @@ class ReadQR extends React.Component {
             pic: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/98/Blank_button.svg/1124px-Blank_button.svg.png',
             showDialog: false,
             rating: 0,
-            booth: ''
+            booth: '',
+            isLoginqr: false
         };
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
@@ -54,19 +57,24 @@ class ReadQR extends React.Component {
     }
 
     handleBarCodeScanned = ({ type, data }) => {
+        console.log(data)
+
+        if (data == 'checkin') {
+            this.setState({ isLoginqr: true })
+        } else {
+            firebase.database().ref('boothmaster').on('value', (snapshot) => {
+                const boothmaster = snapshot.val();
+                console.log(boothmaster)
+                boothmaster.map((boothData) => {
+                    if (boothData.QRCodeURL == data) {
+                        console.log("boothData.BoothName", boothData.BoothName)
+                        this.setState({ scanned: true, qrurl: data, booth: boothData.BoothName, BoothID: boothData.BoothID });
+                    }
+                });
 
 
-        firebase.database().ref('boothmaster').on('value', (snapshot) => {
-            const boothmaster = snapshot.val();
-            boothmaster.map((boothData) => {
-                if (boothData.QRCOdeURL == data) {
-                    console.log("boothData.BoothName", boothData.BoothName)
-                    this.setState({ scanned: true, qrurl: data, booth: boothData.BoothName, BoothID: boothData.BoothID });
-                }
             });
-
-
-        });
+        }
     };
 
     writeNewPost(rating, user, booth) {
@@ -122,7 +130,7 @@ class ReadQR extends React.Component {
 
 
         if (this.state.hasCameraPermission === null) {
-            return <Text>Requesting for camera permission</Text>;
+            return <Text style={{ display: "none" }} >Requesting for camera permission</Text>;
         }
         if (this.state.hasCameraPermission === false) {
             return <Text>No access to camera</Text>;
@@ -131,16 +139,30 @@ class ReadQR extends React.Component {
         const { hasCameraPermission } = this.state;
 
         if (hasCameraPermission === null) {
-            return <Text>Requesting for camera permission</Text>;
+            return <Text style={{ display: "none" }}>Requesting for camera permission</Text>;
         } else if (hasCameraPermission === false) {
             return <Text>No access to camera</Text>;
         } else {
             return (
                 <Container>
                     <Fragment>
-                        <SafeAreaView style={{ flex: 1, backgroundColor: '#053e8b' }}>
+                        <SafeAreaView style={{ flex: 1, backgroundColor: 'gray' }}>
+                        {this.state.isLoginqr &&
+                                <TouchableHighlight onPress={() => {
+                                    this.props.navigation.navigate(
+                                        "Home"
+                                    );
+                                    this.setState({ isLoginqr: false })
+                                }}>
 
-                            {!this.state.scanned &&
+                                    <View style={{ width: SCREEN_WIDTH, height: (SCREEN_HEIGHT - STATUS_BAR_HEIGHT) }}>
+                                        <Image style={{ width: SCREEN_WIDTH, height: (SCREEN_HEIGHT - STATUS_BAR_HEIGHT) }} source={CheckInBG} />
+                                        <Image style={{ position: 'absolute', top: ((SCREEN_HEIGHT-STATUS_BAR_HEIGHT)/2) - SCREEN_WIDTH * 0.25,right: SCREEN_WIDTH * 0.25, width: SCREEN_WIDTH * 0.5, height: (SCREEN_WIDTH * 0.5) }} source={CheckIn} />
+                                    </View>
+                                </TouchableHighlight >
+                            }
+
+                            {(!this.state.isLoginqr && !this.state.scanned) &&
                                 <View
                                     style={{
                                         flex: 1,
@@ -153,18 +175,17 @@ class ReadQR extends React.Component {
                                     />
                                 </View>
                             }
-                            {this.state.scanned &&
+                            {(!this.state.isLoginqr && this.state.scanned) &&
                                 <View>
                                     <View style={{ justifyContent: 'center', alignItems: 'center', alignSelf: 'center', position: 'absolute' }}>
-                                        <Text style={{ marginTop: SCREEN_HEIGHT * 0.3, color: 'white' }}>{this.state.booth}</Text>
+                                        <Text style={{ marginTop: SCREEN_HEIGHT * 0.3, color: 'white' ,fontSize: SCREEN_HEIGHT, fontWeight: 'bold'}}>{this.state.booth}</Text>
                                     </View>
-                                    <Text style={{ position: "absolute", marginTop: 0.3 }}>Booth</Text>
                                     <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: SCREEN_HEIGHT * 0.4 }}>
 
                                         <View style={{ height: SCREEN_HEIGHT * 0.1 }}>
                                             <AirbnbRating
                                                 count={5}
-                                                reviews={["Bad", "OK", "Good", "Very Good", "Amazing"]}
+                                                reviews={["Very Unsatisfied", "Unsatisfied", "Neutral", "Satisfied", "Very Satisfied"]}
                                                 defaultRating={0}
                                                 size={20}
                                                 onFinishRating={rating => this.setState({ rating: rating })}

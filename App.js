@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View, BackHandler } from "react-native";
+import {  View, StatusBar } from "react-native";
 // import { Font } from "expo";
 import * as Font from 'expo-font'
 
@@ -16,8 +16,11 @@ import Lotto from "./screens/Lotto";
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 // import NotificationPopup from 'react-native-push-notification-popup';
+
+const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBar.currentHeight;
 const Stack = createStackNavigator();
 const store = configureStore();
+
 // import { FlashMessage} from "react-native-flash-message";
 export default class App extends React.Component {
   state = {
@@ -33,13 +36,17 @@ export default class App extends React.Component {
     });
 
     this.setState({ fontLoaded: true });
-    BackHandler.addEventListener("hardwareBackPress", function () {
-      return true;
-    });
+    // BackHandler.addEventListener("hardwareBackPress", function () {
+    //   return true;
+    // });
   }
 
   render() {
     return (
+      <View style={{flex:1}}>
+        <View style={{height: STATUS_BAR_HEIGHT,backgroundColor: "gray"}}>
+          
+          </View>
       <Provider store={store}>
         {this.state.fontLoaded ? <NavigationContainer >
           <Stack.Navigator initialRouteName="Landing" screenOptions={{ headerShown: false ,animationEnabled: false}}>
@@ -54,6 +61,7 @@ export default class App extends React.Component {
           </Stack.Navigator>
         </NavigationContainer> : null}
       </Provider>
+      </View>
     );
   }
 }

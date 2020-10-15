@@ -16,7 +16,7 @@ import mapicon1 from '../assets/icon/icon-Map-0.png';
 import qaicon1 from '../assets/icon/icon-QA-0.png';
 import qricon1 from '../assets/icon/icon-QR-0.png';
 import surveyicon2 from '../assets/icon/icon-Survey-1.png';
-const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBar.currentHeight;
+const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 30 : StatusBar.currentHeight+20;
 class FormComponent extends React.Component {
     constructor(props) {
         super(props);
@@ -34,7 +34,7 @@ class FormComponent extends React.Component {
                  <SafeAreaView style={{ flex: 1 }}>
       <WebView
         source={{ uri: 'https://forms.office.com/Pages/ResponsePage.aspx?id=nIQHzS3vvkWtKzBH1IP40MxTO3QVq4VFmNG14rK9FhZUMVBRWFBPMlRHMFNCSFdTNjQyMk40S0w2TC4u' }}
-        style={{ flex: 1, marginTop: 20 }}
+        style={{ flex: 1}}
       />
     </SafeAreaView>
                 <Footer>

@@ -17,7 +17,7 @@ import { Container, Content, Footer, FooterTab, Button } from 'native-base';
 // import * as Application from 'expo-application';
 
 
-const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBar.currentHeight;
+const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 40 : StatusBar.currentHeight;
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const backgroundimg = require('../assets/images/background/LandingPage.png');
@@ -39,7 +39,7 @@ class Home extends React.Component {
                 "Login"
             )}>
 
-                <Image style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT }} source={backgroundimg} />
+                <Image style={{  height: SCREEN_HEIGHT,width: SCREEN_WIDTH }} source={backgroundimg} />
 
             </TouchableHighlight >
 

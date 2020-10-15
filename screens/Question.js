@@ -25,7 +25,9 @@ import qaicon2 from '../assets/icon/icon-QA-1.png';
 import qricon1 from '../assets/icon/icon-QR-0.png';
 import surveyicon1 from '../assets/icon/icon-Survey-0.png';
 import { TextInput } from "react-native-gesture-handler";
-const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBar.currentHeight;
+import RNPickerSelect from 'react-native-picker-select';
+const bgimg = require('../assets/Question/BG.png');
+const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 40 : StatusBar.currentHeight + 20;
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 
@@ -40,28 +42,28 @@ class Question extends React.Component {
         }
         this.state = {
             questiontext: '',
-            booth: '',
-            booths: [],
-            questionlist: []
+            session: '',
+            sessions: [],
+            questionlist: [],
+            // placeholder: {label:"Select session",value:null}
         };
-        // firebase.database().ref('boothmaster').set([{ BoothID: "Booth1", BoothName: "Booth1Name", BoothDescription: "Booth1Description", QRCOdeURL: 'https://www.kaspersky.com' },
-        // { BoothID: "Booth2", BoothName: "Booth2Name", BoothDescription: "Booth2Description", QRCOdeURL: 'http://devbanban.com/' }]);
+        // firebase.database().ref('sessionmaster').set([{ sessionID: "session1", sessionName: "session1Name", sessionDescription: "session1Description", QRCOdeURL: 'https://www.kaspersky.com' },
+        // { sessionID: "session2", sessionName: "session2Name", sessionDescription: "session2Description", QRCOdeURL: 'http://devbanban.com/' }]);
         // BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
-
         // this.fetch_firebase();
     }
     componentDidMount() {
-    // fetch_firebase() {
-        firebase.database().ref('boothmaster').on('value', (snapshot) => {
+        // fetch_firebase() {
+        firebase.database().ref('sessionmaster').on('value', (snapshot) => {
             const data = snapshot.val();
-            console.log("boothmaster: ", data);
-            let booths = []
-            data.map((boothData) => {
-                console.log(boothData.BoothName);
-                booths.push({ label: boothData.BoothName, value: boothData.BoothName });
+            console.log("sessionmaster: ", data);
+            let sessions = []
+            data.map((sessionData) => {
+                console.log(sessionData.sessionName);
+                sessions.push({ label: sessionData.sessionName, value: sessionData.sessionName });
             });
             this.setState({
-                booths: booths
+                sessions: sessions
             });
         });
     }
@@ -77,13 +79,13 @@ class Question extends React.Component {
         let time = year + '' + month + '' + day + '' + hours + '' + min + '' + sec;
         var date = new Date().getDate();
         var postData = {
-            BoothName: this.state.booth,
+            sessionName: this.state.session,
             User: (this.props.persona.ID),
             TimeStamp: time,
             Question: this.state.questiontext,
             questionlist: []
         };
-        firebase.database().ref('Questionare/' + this.state.booth+'/'+time).set(postData);
+        firebase.database().ref('Questionare/' + this.state.session + '/' + time).set(postData);
         this.setState({ questiontext: '' })
     }
 
@@ -92,18 +94,18 @@ class Question extends React.Component {
         return true;
     }
 
-    selectBooth(booth) {
-        this.setState({ booth: booth,questionlist: [] });
-        console.log("selectedbooth", booth);
-        this.loadQuestion(booth);
+    selectsession(session) {
+        this.setState({ session: session });
+        console.log("selectedsession", session);
+        this.loadQuestion(session);
     }
 
-    loadQuestion(booth) {
-        console.log("this.state.booth",booth);
-        firebase.database().ref('Questionare/' + booth).on('value', (snapshot) => {
+    loadQuestion(session) {
+        console.log("this.state.session", session);
+        firebase.database().ref('Questionare/' + session).on('value', (snapshot) => {
             const data = snapshot.val();
             var sortquestionare = []
-            
+
             if (data) {
                 // console.log(data)
 
@@ -111,16 +113,12 @@ class Question extends React.Component {
                     // key will be the auth ID for each user
                     var key = childSnapshot.key;
                     var mechanicName = snapshot.child(key).val();
-                    console.log('mechanicName',mechanicName)
+                    console.log('mechanicName', mechanicName)
                     sortquestionare.push(mechanicName);
                 });
 
 
-                // data.map((questionare) => {
-                //     sortquestionare.push(questionare)
-
-                // });
-                console.log('sortquestionare',sortquestionare)
+                console.log('sortquestionare', sortquestionare)
                 sortquestionare.sort(function (a, b) { return b.TimeStamp - a.TimeStamp });
                 let count = 0;
                 var questionlist = []
@@ -137,6 +135,8 @@ class Question extends React.Component {
 
                 this.setState({ questionlist: questionlist })
                 console.log(this.state.questionlist)
+            } else {
+                this.setState({ questionlist: [] })
             }
 
 
@@ -151,36 +151,42 @@ class Question extends React.Component {
             <Container>
 
                 <ScrollView>
-                    <View style={{ marginTop: (SCREEN_HEIGHT * 0.1), alignItems: 'center', justifyContent: 'center' }}>
+                    <View style={{ height: SCREEN_HEIGHT, width: SCREEN_WIDTH, alignItems: 'center', justifyContent: 'center' }}>
+                        <Image style={{ position: 'absolute', width: SCREEN_WIDTH, height: SCREEN_HEIGHT + (SCREEN_HEIGHT * 0.05), resizeMode: "stretch" }} source={bgimg} />
+                        <Text style={{ position: 'absolute', top: SCREEN_HEIGHT * 0.05, fontSize: 19, fontWeight: 'bold', color: '#ffffdd' }}>Any Questions For The Speaker ?</Text>
 
-
-
-                        <Picker
+                        <Text style={{ marginTop: (-(SCREEN_HEIGHT * 0.2) - (StatusBar.currentHeight) * 2), marginRight: SCREEN_WIDTH * 0.3, fontSize: 19, color: '#0e488f' }}>Please Select Session</Text>
+                        <View
                             style={{
-                                height: 50, width: (SCREEN_WIDTH * 0.9),
-                                flex: 2
-                            }}
-                            selectedValue={this.state.booth}
-                            onValueChange={(value) => this.selectBooth(value)}
-                        >
+                                marginTop: SCREEN_HEIGHT * 0.01,
+                                height: 50, width: (SCREEN_WIDTH * 0.8),
+                                borderColor: '#0e488f', borderWidth: 1,
+                                borderRadius: 5, justifyContent: 'center', alignItems: 'center'
+                            }}>
 
 
-                            <Picker.Item key={'unselectable'} label={'Please select booth'} value={0} />
+                            <RNPickerSelect
+                                onValueChange={(value) => this.selectsession(value)}
+                                items={this.state.sessions}
+                                placeholder={{ label: "Select session", value: null }}
+                            />
+                        </View>
 
-                            {this.state.booths.map((c) => <Picker.Item key={c.label} label={c.label} value={c.label} />)}
-                        </Picker>
 
-
-
-                        <TextInput style={{ textAlignVertical: "top", height: SCREEN_WIDTH * 0.4, width: SCREEN_WIDTH * 0.8, borderColor: 'black', borderWidth: 1 }}
+                        <TextInput style={{ marginTop: SCREEN_HEIGHT * 0.02, textAlignVertical: "top", height: SCREEN_WIDTH * 0.4, width: SCREEN_WIDTH * 0.8, borderColor: 'black', borderWidth: 1 }}
                             onChangeText={text => this.setState({ questiontext: text })}
                             value={this.state.questiontext}
-                            editable={(this.state.booth == '' ? false : true)}
+                        // editable={(this.state.session == '' ? false : true)}
                         ></TextInput>
-                        <Button style={{ width: SCREEN_WIDTH * 0.2, justifyContent: 'center' }} onPress={() => this.addQuestion()}><Text style={{ color: 'white' }}>Submit</Text></Button>
-                        {this.state.questionlist.map((c) =>
-                            <Text style={{ color: 'black' }}>{c.number} {c.question} {c.datetime}</Text>
-                        )}
+                        <Button style={{ width: SCREEN_WIDTH * 0.3, justifyContent: 'center', borderRadius: 40, backgroundColor: '#f7941d', marginLeft: 50, marginTop: 20 }}
+                            onPress={() => this.addQuestion()}><Text style={{ color: 'white', fontSize: 16 }}>Submit</Text></Button>
+                        <View style={{  marginTop: SCREEN_HEIGHT * 0.02 }} >
+                            {this.state.questionlist.map((c) =>
+
+                                <Text style={{ color: '#0e488f' }} key={c.number}>{c.number}. {c.question} {c.datetime}</Text>
+
+                            )}
+                        </View>
 
                     </View>
                 </ScrollView>
